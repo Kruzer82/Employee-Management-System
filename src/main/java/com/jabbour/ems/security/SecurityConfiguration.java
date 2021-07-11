@@ -1,7 +1,9 @@
 package com.jabbour.ems.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -9,7 +11,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
 /***
  *  Class for Spring Security Configuration and turning on Spring Security for the application.
  *  more about Vaadin security features on {@linkplain https://vaadin.com/security }
@@ -25,11 +31,20 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+	private final AppUserDetailsService userDetailsService;
+	private final PasswordEncoder encoder;
+
 	private static final String LOGIN_PROCESSING_URL = "/login";
 	private static final String LOGIN_FAILURE_URL = "/login?error";
 	private static final String LOGIN_URL = "/login";
 	private static final String LOGIN_SUCCESS_URL = "/login";
-	
+
+	public SecurityConfiguration(AppUserDetailsService userDetailsService, PasswordEncoder encoder) {
+		this.userDetailsService = userDetailsService;
+		this.encoder = encoder;
+	}
+
 	/***
 	 * Block unauthenticated requests to all pages besides login page
 	 */
@@ -46,7 +61,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		.loginPage(LOGIN_URL).permitAll()
 		.loginProcessingUrl(LOGIN_PROCESSING_URL)
 		.failureUrl(LOGIN_FAILURE_URL)
-		.and().logout().logoutSuccessUrl(LOGIN_SUCCESS_URL);
+		.and()
+//				.logout().logoutSuccessUrl(LOGIN_SUCCESS_URL)
+				.logout() // This is missing and is important
+				.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+				.logoutSuccessUrl(LOGIN_SUCCESS_URL);;
 	}
 	
 	@Bean
@@ -55,15 +74,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	 * Configure test users for application. for testing and demonstration purposes.
 	 */
 	public UserDetailsService userDetailsService() {
-		UserDetails user = 
-				User.withUsername("user")
-				.password("{noop}password")
-				.roles("USER")
-				.build();
-		
-		return new InMemoryUserDetailsManager(user);
+		return userDetailsService;
 	}
-	
+
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		auth.userDetailsService(userDetailsService).passwordEncoder(encoder);
+	}
+
 	@Override
 	public void configure(WebSecurity web) {
 		web.ignoring().antMatchers(

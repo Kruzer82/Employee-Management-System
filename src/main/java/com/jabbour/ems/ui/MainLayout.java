@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -15,6 +16,7 @@ import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.Lumo;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @SuppressWarnings("serial")
 @CssImport("./styles/shared-styles.css")
@@ -27,18 +29,21 @@ public class MainLayout extends AppLayout {
 	
 	private void createHeader() {
 		
-		 H1 logo = new H1("Slick EMS");
-		 logo.addClassName("logo");
-		 
-		 Anchor logout = new Anchor("logout", "Log out");
-			Button toggleButton = new Button("Toggle ☀️/🌙", click -> {
-				ThemeList themeList = UI.getCurrent().getElement().getThemeList(); //
-				if (themeList.contains(Lumo.DARK)) { //
-					themeList.remove(Lumo.DARK);
-				} else {
-					themeList.add(Lumo.DARK);
-				}
-			});
+	H1 logo = new H1("Slick EMS");
+	logo.addClassName("logo");
+	Button logout = new Button("Logout", click -> {
+		SecurityContextHolder.clearContext();
+		UI.getCurrent().getSession().close();
+	});
+
+	Button toggleButton = new Button("Toggle ☀️/🌙", click -> {
+		ThemeList themeList = UI.getCurrent().getElement().getThemeList(); //
+		if (themeList.contains(Lumo.DARK)) { //
+			themeList.remove(Lumo.DARK);
+		} else {
+			themeList.add(Lumo.DARK);
+		}
+	});
 		 
 		 HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo,toggleButton, logout);
 		 header.expand(logo);
