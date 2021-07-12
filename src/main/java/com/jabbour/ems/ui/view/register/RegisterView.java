@@ -3,8 +3,10 @@ package com.jabbour.ems.ui.view.register;
 import com.jabbour.ems.backend.entity.User;
 import com.jabbour.ems.backend.repository.UserRepository;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -15,21 +17,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RegisterView extends Composite<Div> {
+public class RegisterView extends Dialog {
 
     public RegisterView(UserRepository userRepository, PasswordEncoder encoder) {
-
+        super();
         TextField l = new TextField("Login");
         PasswordField p = new PasswordField("Password");
         Button r = new Button("Register");
+
         r.addClickListener(e -> {
             User user = new User(l.getValue(), encoder.encode(p.getValue()));
             User save = userRepository.save(user);
-            if(user.getId() != null) {
 
+            if(save.getId() != null) {
+                add(Notification.show("User created"));
+            } else {
+                add(Notification.show("User not created"));
             }
         });
-        getContent().add(new VerticalLayout(l,p,r));
+        add(new VerticalLayout(l,p,r));
     }
 
 

@@ -38,19 +38,14 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 	private PasswordEncoder encoder;
 
 	public LoginView() {
-		
-		Notification notification = new Notification();
-
 		addClassName("login-view");
-		Button button = new Button("Register!");
+		Button button = new Button("Register!", event -> {
+			RegisterView registerView = new RegisterView(userRepository, encoder);
+			registerView.open();
+		});
 		button.addClassName("lumo-button");
 		button.getElement().setAttribute("aria-label", "Click me");
-		button.addClickListener(click -> {
-			Dialog dialog = new Dialog();
-			dialog.setResizable(true);
-			dialog.add(new RegisterView(userRepository, encoder));
-			dialog.open();
-		});
+
 
 		setSizeFull();
 		setAlignItems(Alignment.CENTER);
