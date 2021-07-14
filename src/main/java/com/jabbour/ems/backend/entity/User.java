@@ -9,10 +9,14 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.util.Collection;
 
 @Entity(name = "USER")
 public class User extends AbstractEntity implements UserDetails {
+    @Email(message = "Email niepoprawny")
+    @NotBlank(message = "Nie może być puste")
     @Column(name = "USERNAME")
     private String username;
     @Column(name = "PASSWORD_HASH")
@@ -76,4 +80,5 @@ public class User extends AbstractEntity implements UserDetails {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }
