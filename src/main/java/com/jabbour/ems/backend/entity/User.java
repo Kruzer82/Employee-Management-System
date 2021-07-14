@@ -1,5 +1,6 @@
 package com.jabbour.ems.backend.entity;
 
+import com.jabbour.ems.backend.service.renderer.annotations.Renderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,8 +19,12 @@ public class User extends AbstractEntity implements UserDetails {
     @Email(message = "Email niepoprawny")
     @NotBlank(message = "Nie może być puste")
     @Column(name = "USERNAME")
+    @Renderer(fieldName = "username",label = "Nazwa użytkownika", editable = true, hidden = false, position = 1L, clazz = String.class)
     private String username;
+
+    @NotBlank(message = "Nie może być puste")
     @Column(name = "PASSWORD_HASH")
+    @Renderer(fieldName = "password",label = "Hasło (Hash)", editable = false, hidden = false, position = 1L, clazz = String.class)
     private String password;
 
     public User() {
